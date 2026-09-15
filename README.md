@@ -1,5 +1,7 @@
 # ebc-camera-test
 
+[English](README.en.md)
+
 OpenMV RT1060 + GenX320(Prophesee イベントベースカメラ)の疎通確認用リポジトリ。
 
 初事業「イベントカメラ非接触振動監視端末」の最初のステップとして、
@@ -21,6 +23,10 @@ OpenMV IDE は使わない(将来 CI や無人計測に載せるため)。
 ## 使い方
 
 ```bash
+git clone https://github.com/ZenLabInc/ebc-camera-test.git
+cd ebc-camera-test
+python3 -m venv .venv
+source .venv/bin/activate
 pip install pyserial pillow numpy
 python3 tools/capture.py --frames 120 --send 0,30,60,90 --out captures/static
 ```
@@ -148,3 +154,20 @@ OpenMV ファームウェアの `sensor` モジュールに EVT ストリーム�
 - このモードはイベントを一定時間ぶんフレームに積算した出力であり、
   イベントカメラ本来の μs 分解能タイムスタンプは取れていない。
   振動計測でその分解能が要る場合は EVT ストリームの直接読み出しを検討する。
+
+## 再検証の流れ
+
+1. OpenMV RT1060をUSBで接続し、ほかのシリアル通信アプリを閉じます。
+2. `tools/capture.py` で静止状態と動きのある状態を別フォルダーへ収録します。
+3. `openmv/vibration_probe.py` の出力を `tools/spectrum.py` へ渡し、実効サンプリングレートとピーク周波数を確認します。
+4. `captures/` の既存CSVと比較するときは、ROI、フレーム数、照明条件、ファームウェア版を記録します。
+
+本リポジトリの数値は記載日の特定個体・室内照明で得た結果です。別の基板、ファームウェア、レンズ、照明で同じ性能を保証するものではありません。
+
+## 安全上の注意
+
+スクリプトは自動検出したシリアルデバイスへ接続します。対象のOpenMV基板だけを接続した状態で実行し、出力先を既存の重要データと重ねないでください。`captures/` へ新しい計測データを追加する場合は、個人情報や撮影対象を特定できる画像が含まれないことを確認してください。
+
+## ライセンス
+
+ライセンス表記が追加されるまでは、著作権者から明示的に許可された範囲を除き、コードの再利用・再配布はできません。
